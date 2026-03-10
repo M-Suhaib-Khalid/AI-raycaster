@@ -1,58 +1,8 @@
-local map = require("map")
-
-
--- player stuff
-local player = {
-    x = 1.5,
-    y = 3,
-    angle = 1.5,
-    width = 0.5,
-    height = 0.5,
-}
-
-function player:updateRect()
-    self.rectX = self.x - self.width / 2
-    self.rectY = self.y - self.height / 2
-end
-
-function player:collision(x,y,w,h)
-
-    return self.rectX < x + w and
-           x < self.rectX + self.width and
-           self.rectY < y + h and
-           y< self.rectY + self.height
-
-end
-
-
-
-
-
--- collision detector
-
-local function checkWallCollision()
-
-    local tileX = math.floor(player.x)
-    local tileY = math.floor(player.y)
-
-    for y = tileY - 1, tileY + 1 do
-        for x = tileX - 1, tileX + 1 do
-
-            if map.grid[y+1] and map.grid[y+1][x+1] > 0 then
-
-                local wallX = x
-                local wallY = y
-
-                if player:collision(wallX, wallY, 1, 1) then
-                    return true
-                end
-
-            end
-        end
-    end
-
-    return false
-end
+local map = require("dependencies/map")
+player = require("dependencies/player")
+require("dependencies/collisionChecker")
+require("dependencies/raycaster")
+require("dependencies/sceneRenderer")
 
 
 -- constants
@@ -73,8 +23,8 @@ function love.load()
     player:updateRect()
     love.window.setMode(1200,690)
     textures = {
-    [1] = love.graphics.newImage("wall.png"),
-    [2] = love.graphics.newImage("door.png")
+    [1] = love.graphics.newImage("assets/wall.png"),
+    [2] = love.graphics.newImage("assets/door.png")
     }
 end
 
@@ -192,129 +142,10 @@ function love.update(dt)
     player:updateRect()
 end
 
-function castRay(angle)
 
-    local rayDirX = math.cos(angle)
-    local rayDirY = math.sin(angle)
-
-    -- current map square
-    local mapX = math.floor(player.x)
-    local mapY = math.floor(player.y)
-
-    -- distance to next x/y side
-    local deltaDistX = math.abs(1 / rayDirX)
-    local deltaDistY = math.abs(1 / rayDirY)
-
-    local stepX, stepY
-    local sideDistX, sideDistY
-
-    -- step direction and initial sideDist
-    if rayDirX < 0 then
-        stepX = -1
-        sideDistX = (player.x - mapX) * deltaDistX
-    else
-        stepX = 1
-        sideDistX = (mapX + 1 - player.x) * deltaDistX
-    end
-
-    if rayDirY < 0 then
-        stepY = -1
-        sideDistY = (player.y - mapY) * deltaDistY
-    else
-        stepY = 1
-        sideDistY = (mapY + 1 - player.y) * deltaDistY
-    end
-
-    local hit = false
-    local side
-    local wallType = 1
-
-    while not hit do
-
-        if sideDistX < sideDistY then
-            sideDistX = sideDistX + deltaDistX
-            mapX = mapX + stepX
-            side = 0
-        else
-            sideDistY = sideDistY + deltaDistY
-            mapY = mapY + stepY
-            side = 1
-        end
-
-        local tile = map.grid[mapY+1] and map.grid[mapY+1][mapX+1]
-
-        if tile and tile > 0 then
-            hit = true
-            wallType = tile
-        end
-
-    end
-
-    local perpWallDist
-
-    if side == 0 then
-        perpWallDist = (mapX - player.x + (1 - stepX) / 2) / rayDirX
-    else
-        perpWallDist = (mapY - player.y + (1 - stepY) / 2) / rayDirY
-    end
-
-    local wallX
-
-    if side == 0 then
-        wallX = player.y + perpWallDist * rayDirY
-    else
-        wallX = player.x + perpWallDist * rayDirX
-    end
-
-    wallX = wallX - math.floor(wallX)
-
-    return perpWallDist, side, wallX, wallType
-end
 
 function love.draw()
-
-    local width = love.graphics.getWidth()
-    local height = love.graphics.getHeight()
-
-    
-    for i = 1, numRays do
-        
-        local rayAngle = player.angle - FOV/2 + (i-1)/numRays * FOV
-
-        local dist, side, wallX, wallType= castRay(rayAngle)
-        
-        dist = dist * math.cos(rayAngle - player.angle)
-        
-        local wallHeight = height / dist
-        local columnwidth = width / numRays
-        local x = (i-1) * columnwidth
-        
-        local tex = textures[wallType]
-        local texWidth = tex:getWidth()
-        local texHeight = tex:getHeight()
-        local texX = math.floor(wallX * texWidth)
-        
-        local quad = love.graphics.newQuad(
-            texX,
-            0,
-            1,
-            texHeight,
-            texWidth,
-            texHeight
-        )
-
-        love.graphics.draw(
-            tex,
-            quad,
-            x,
-            height/2 - wallHeight/2,
-            0,
-            1,
-            wallHeight / texHeight
-        )
-
-    end
-
+    drawScene(numRays,FOV)
 end
 
 function love.keypressed(key)
