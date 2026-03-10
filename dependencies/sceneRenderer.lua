@@ -35,7 +35,7 @@ function drawScene(numRays,FOV)
             x,
             height/2 - wallHeight/2,
             0,
-            1,
+            2,
             wallHeight / texHeight
         )
 

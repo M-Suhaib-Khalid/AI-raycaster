@@ -3,29 +3,36 @@ player = require("dependencies/player")
 require("dependencies/collisionChecker")
 require("dependencies/raycaster")
 require("dependencies/sceneRenderer")
-
+require("dependencies/floorCaster")
 
 -- constants
 local FOV = math.rad(60)
-local numRays = 1200
+local numRays = 600
 local maxDepth = 20
 local moveSpeed = 2
 local rotSpeed = 2
 local mouseSensitivity = 0.003
-
-
-
 
 -- load function
 function love.load()
     love.graphics.setDefaultFilter("nearest", "nearest")
     love.mouse.setRelativeMode(true)
     player:updateRect()
-    love.window.setMode(1200,690)
+    love.window.setMode(1200,690,{vsync = 0})
     textures = {
     [1] = love.graphics.newImage("assets/wall.png"),
     [2] = love.graphics.newImage("assets/door.png")
     }
+
+    floorTexture = love.graphics.newImage("assets/floor.png")
+    floorTexData = love.image.newImageData("assets/floor.png")
+
+    screenWidth = love.graphics.getWidth()
+    screenHeight = love.graphics.getHeight()
+
+    floorBuffer = love.image.newImageData(screenWidth, screenHeight)
+    floorImage = love.graphics.newImage(floorBuffer)
+
 end
 
 
@@ -145,7 +152,27 @@ end
 
 
 function love.draw()
+
+    local dirX = math.cos(player.angle)
+local dirY = math.sin(player.angle)
+
+local planeX = -dirY * math.tan(FOV / 2)
+local planeY =  dirX * math.tan(FOV / 2)
+
+    drawFloorFast(
+        floorTexture,
+        player.x,
+        player.y,
+        dirX,
+        dirY,
+        planeX,
+        planeY
+    )
     drawScene(numRays,FOV)
+    love.graphics.print(
+"FPS: "..love.timer.getFPS()..
+"\nMemory: "..math.floor(collectgarbage("count")/1024).." MB",
+10,10)
 end
 
 function love.keypressed(key)
