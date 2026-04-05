@@ -160,7 +160,6 @@ local planeX = -dirY * math.tan(FOV / 2)
 local planeY =  dirX * math.tan(FOV / 2)
 
     drawFloorFast(
-        floorTexture,
         player.x,
         player.y,
         dirX,
