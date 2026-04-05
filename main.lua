@@ -41,6 +41,7 @@ end
 -- mouse movement
 function love.mousemoved(x, y, dx, dy)
     player.angle = player.angle + dx * mouseSensitivity
+    player.pitch = player.pitch + dy * mouseSensitivity
 end
 
 
@@ -153,20 +154,14 @@ end
 
 function love.draw()
 
-local dirX = math.cos(player.angle)
-local dirY = math.sin(player.angle)
+    local dirX = math.cos(player.angle)
+    local dirY = math.sin(player.angle)
 
-local planeX = -dirY * math.tan(FOV / 2)
-local planeY =  dirX * math.tan(FOV / 2)
-
-    drawFloorFast(
-        player.x,
-        player.y,
-        dirX,
-        dirY,
-        planeX,
-        planeY
-    )
+    local planeX = -dirY * math.tan(FOV / 2)
+    local planeY =  dirX * math.tan(FOV / 2)
+    love.graphics.setColor(0.25,0.5,1)
+    love.graphics.rectangle("fill",0,screenHeight/2-(player.pitch*200),screenWidth,screenHeight*2)
+    love.graphics.setColor(1,1,1)
     drawScene(numRays,FOV)
     love.graphics.rectangle("line",screenWidth/2,screenHeight/2,20,20)
     love.graphics.circle("line",screenWidth/2+10,screenHeight/2+10,7,7)

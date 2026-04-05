@@ -4,6 +4,7 @@ local player = {
     angle = 1.5,
     width = 0.5,
     height = 0.5,
+    pitch = 0
 }
 
 function player:updateRect()

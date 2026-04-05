@@ -34,7 +34,7 @@ function drawScene(numRays,FOV)
             tex,
             quad,
             x,
-            height/2 - wallHeight/2,
+            height/2 - wallHeight/2-(player.pitch*200),
             0,
             2,
             wallHeight / texHeight
