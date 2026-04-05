@@ -18,7 +18,7 @@ function love.load()
     love.graphics.setDefaultFilter("nearest", "nearest")
     love.mouse.setRelativeMode(true)
     player:updateRect()
-    love.window.setMode(1200,690,{vsync = 0})
+    love.window.setMode(1200,690,{vsync = 1})
     textures = {
     [1] = love.graphics.newImage("assets/wall.png"),
     [2] = love.graphics.newImage("assets/door.png")
@@ -153,7 +153,7 @@ end
 
 function love.draw()
 
-    local dirX = math.cos(player.angle)
+local dirX = math.cos(player.angle)
 local dirY = math.sin(player.angle)
 
 local planeX = -dirY * math.tan(FOV / 2)
@@ -168,10 +168,8 @@ local planeY =  dirX * math.tan(FOV / 2)
         planeY
     )
     drawScene(numRays,FOV)
-    love.graphics.print(
-"FPS: "..love.timer.getFPS()..
-"\nMemory: "..math.floor(collectgarbage("count")/1024).." MB",
-10,10)
+    love.graphics.rectangle("line",screenWidth/2,screenHeight/2,20,20)
+    love.graphics.circle("line",screenWidth/2+10,screenHeight/2+10,7,7)
 end
 
 function love.keypressed(key)

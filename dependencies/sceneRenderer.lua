@@ -1,3 +1,4 @@
+player = require("dependencies/player")
 function drawScene(numRays,FOV)
     local width = love.graphics.getWidth()
     local height = love.graphics.getHeight()
